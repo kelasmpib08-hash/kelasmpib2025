@@ -10,9 +10,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 // Ganti dengan kredensial milikmu
-const supabaseUrl = "https://gufbusvnoscociobvxxn.supabase.co";
-const supabaseAnonKey = "";
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // === Ambil parameter dari URL ===
 const params = new URLSearchParams(window.location.search);
@@ -106,6 +106,7 @@ async function loadMakalah() {
 
 // Jalankan setelah halaman siap
 document.addEventListener("DOMContentLoaded", loadMakalah);
+
 
 
 
