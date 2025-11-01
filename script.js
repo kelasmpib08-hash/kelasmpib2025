@@ -1,7 +1,5 @@
-// script.js (perbaikan logout/navbar + supabase + load makalah)
-
 // ==============================
-// KONFIGURASI USER LOGIN (dummy)
+// KONFIGURASI USER LOGIN
 // ==============================
 const users = {
   "mpiadmin@gmail.com": { password: "AdminMPIB2025", role: "admin" },
@@ -9,122 +7,78 @@ const users = {
 };
 
 // ==============================
-// HELPERS LOGIN / LOGOUT
+// FUNGSI LOGIN & LOGOUT
 // ==============================
 function isLoggedIn() {
   return localStorage.getItem("loggedIn") === "true";
 }
+
 function getUserEmail() {
   return localStorage.getItem("userEmail");
 }
-// FIXED: baca key yang konsisten (userRole)
+
 function getUserRole() {
-  return localStorage.getItem("userRole") || "user";
+  return localStorage.getItem("userRole");
 }
+
 function logout() {
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("userEmail");
   localStorage.removeItem("userRole");
-  // redirect ke halaman login
   window.location.href = "login.html";
 }
 
 // ==============================
-// VALIDASI LOGIN (contoh dipanggil dari login.html)
+// VALIDASI LOGIN
 // ==============================
 function validateLogin(event) {
-  if (event && event.preventDefault) event.preventDefault();
+  event.preventDefault();
 
-  const email = document.getElementById("email")?.value?.trim() || "";
-  const password = document.getElementById("password")?.value?.trim() || "";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   if (users[email] && users[email].password === password) {
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("userEmail", email);
-    localStorage.setItem("userRole", users[email].role); // simpan dengan key userRole
+    localStorage.setItem("userRole", users[email].role);
 
     alert("✅ Login berhasil!");
     window.location.href = "index.html";
-    return true;
   } else {
     alert("❌ Email atau password salah!");
-    return false;
   }
 }
 
 // ==============================
-// INIT: set visibility navbar / hook logout
+// STATUS LOGIN + NAVBAR
 // ==============================
-document.addEventListener("DOMContentLoaded", () => {
-  // Navbar elements (desktop & mobile)
-  const userInfoDesktop = document.getElementById("user-info");
-  const userInfoMobile = document.getElementById("user-info-mobile");
+document.addEventListener("DOMContentLoaded", function () {
+  const loginLink = document.querySelector('a[href="login.html"]');
+  const navbar = document.querySelector("nav ul");
 
-  const loginBtnDesktop = document.getElementById("login-btn-desktop");
-  const logoutBtnDesktop = document.getElementById("logout-btn-desktop");
-  const loginBtnMobile = document.getElementById("login-btn-mobile");
-  const logoutBtnMobile = document.getElementById("logout-btn-mobile");
-
-  const page = window.location.pathname.split("/").pop(); // nama file
-
-  // Safety: jika elemen tidak ada, jangan error
-  function hide(el) { if (el) el.style.display = "none"; }
-  function showInline(el) { if (el) el.style.display = "inline-block"; }
-
-  if (isLoggedIn()) {
-    const email = getUserEmail();
-    const role = getUserRole();
-
-    if (userInfoDesktop) userInfoDesktop.textContent = `👤 ${email} (${role})`;
-    if (userInfoMobile) userInfoMobile.textContent = `👤 ${email} (${role})`;
-
-    hide(loginBtnDesktop);
-    showInline(logoutBtnDesktop);
-    hide(loginBtnMobile);
-    showInline(logoutBtnMobile);
-
-    // proteksi halaman makalah (hanya user terdaftar)
-    if (page === "makalah.html") {
-      if (email === "mpiuser@gmail.com" || email === "mpiadmin@gmail.com") {
-        // loadMakalahTable akan dipanggil di bawah (setiap halaman memanggilnya aman)
-      } else {
-        alert("Anda tidak memiliki akses ke halaman ini!");
-        window.location.href = "login.html";
-      }
-    }
-
-    // jika ada section upload, sembunyikan untuk non-admin
-    const uploadSection = document.querySelector(".upload-section");
-    if (uploadSection && role !== "admin") uploadSection.style.display = "none";
-
-  } else {
-    // belum login
-    if (page !== "login.html") {
-      // biarkan halaman login.html terbuka, tapi jika user mengakses halaman lain, arahkan ke login
-      window.location.href = "login.html";
-      return; // hentikan init lainnya karena akan redirect
-    }
-
-    // tampilkan/hilangkan tombol sesuai
-    if (userInfoDesktop) userInfoDesktop.textContent = "";
-    if (userInfoMobile) userInfoMobile.textContent = "";
-
-    showInline(loginBtnDesktop);
-    hide(logoutBtnDesktop);
-    showInline(loginBtnMobile);
-    hide(logoutBtnMobile);
+  // buat tombol logout dinamis
+  let logoutItem = document.getElementById("logout-btn");
+  if (!logoutItem) {
+    logoutItem = document.createElement("li");
+    logoutItem.id = "logout-btn";
+    logoutItem.innerHTML = `<a href="#" onclick="logout()">Logout</a>`;
+    logoutItem.style.display = "none";
+    if (navbar) navbar.appendChild(logoutItem);
   }
 
-  // Pasang event listener logout (jangan gunakan href untuk redirect langsung)
-  if (logoutBtnDesktop) logoutBtnDesktop.addEventListener("click", (e) => { e.preventDefault(); if(confirm("Yakin ingin logout?")) logout(); });
-  if (logoutBtnMobile) logoutBtnMobile.addEventListener("click", (e) => { e.preventDefault(); if(confirm("Yakin ingin logout?")) logout(); });
+  // tampilkan / sembunyikan tombol login & logout
+  if (isLoggedIn()) {
+    if (loginLink) loginLink.style.display = "none";
+    logoutItem.style.display = "inline-block";
+  } else {
+    if (loginLink) loginLink.style.display = "inline-block";
+    logoutItem.style.display = "none";
+  }
 });
 
 // ==============================
 // KONFIGURASI SUPABASE
 // ==============================
-// NOTE: Jika kamu tidak memakai import/module, hapus bagian import dan gunakan versi CDN biasa.
-// Jika menggunakan import, pastikan <script type="module" src="script.js"></script> di HTML.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
@@ -132,7 +86,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ==============================
-// LOAD DATA MAKALAH (dipanggil bila ada tabel di halaman)
+// LOAD DATA MAKALAH
 // ==============================
 async function loadMakalahTable() {
   const tableBody = document.getElementById("makalahTableBody");
@@ -143,8 +97,8 @@ async function loadMakalahTable() {
   const { data: files, error } = await supabase.storage.from("MAKALAH_DAN_PPT").list();
 
   if (error) {
-    tableBody.innerHTML = `<tr><td colspan='4'>❌ Gagal memuat data makalah!</td></tr>`;
     console.error("Gagal load makalah:", error);
+    tableBody.innerHTML = `<tr><td colspan='4'>❌ Gagal memuat data makalah!</td></tr>`;
     return;
   }
 
@@ -177,13 +131,12 @@ async function loadMakalahTable() {
       <td>${file.metadata?.size ? (file.metadata.size / 1024 / 1024).toFixed(2) + " MB" : "-"}</td>
       <td>${actionButtons}</td>
     `;
-
     tableBody.appendChild(row);
   });
 }
 
 // ==============================
-// HAPUS MAKALAH (ADMIN ONLY)
+// HAPUS MAKALAH (ADMIN)
 // ==============================
 async function hapusMakalah(fileName) {
   const role = getUserRole();
@@ -192,44 +145,40 @@ async function hapusMakalah(fileName) {
     return;
   }
 
-  if (!confirm(`Yakin ingin menghapus file "${fileName}" ?`)) return;
-
-  const { error } = await supabase.storage.from("MAKALAH_DAN_PPT").remove([fileName]);
-  if (error) {
-    alert("❌ Gagal menghapus file!");
-    console.error("Error hapus:", error);
-    return;
+  if (confirm(`Yakin ingin menghapus file "${fileName}" ?`)) {
+    const { error } = await supabase.storage.from("MAKALAH_DAN_PPT").remove([fileName]);
+    if (error) {
+      alert("❌ Gagal menghapus file!");
+      console.error("Error hapus:", error);
+      return;
+    }
+    alert("✅ File berhasil dihapus!");
+    loadMakalahTable();
   }
-  alert("✅ File berhasil dihapus!");
-  loadMakalahTable();
 }
 
-// Jika halaman memiliki tabel makalah, panggil loadMakalahTable saat DOM siap (tetap aman karena loadMakalahTable memeriksa elemen)
-document.addEventListener("DOMContentLoaded", () => {
-  loadMakalahTable();
-});
-
 // ==============================
-// AUTO LOGOUT 20 MENIT (optional)
+// AUTO LOGOUT 20 MENIT
 // ==============================
 let waktuKunjungan = 20 * 60;
+
 function mulaiTimerKunjungan() {
   const hitungMundur = setInterval(() => {
     waktuKunjungan--;
     if (waktuKunjungan <= 0) {
       clearInterval(hitungMundur);
-      alert("⏰ Waktu kunjungan Anda (20 menit) telah berakhir. Logout otomatis.");
+      alert("Waktu kunjungan Anda (20 menit) telah berakhir. Anda akan logout otomatis.");
       logout();
     }
   }, 1000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
   if (isLoggedIn()) {
     mulaiTimerKunjungan();
-    ["mousemove","keydown","click","scroll"].forEach(evt => {
-      document.addEventListener(evt, () => waktuKunjungan = 20 * 60);
-    });
+    ["mousemove", "keydown", "click", "scroll"].forEach(evt =>
+      document.addEventListener(evt, () => waktuKunjungan = 20 * 60)
+    );
   }
 });
 
