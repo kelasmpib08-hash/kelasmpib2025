@@ -7,45 +7,69 @@ const users = {
 };
 
 // ==============================
-// FUNGSI LOGIN & LOGOUT
+// CEK LOGIN SAAT HALAMAN DIBUKA
 // ==============================
-function isLoggedIn() {
-  return localStorage.getItem("loggedIn") === "true";
-}
-function getUserEmail() {
-  return localStorage.getItem("userEmail");
-}
-function getUserRole() {
-  return localStorage.getItem("userRole");
-}
-function logout() {
-  localStorage.removeItem("loggedIn");
-  localStorage.removeItem("userEmail");
-  localStorage.removeItem("userRole");
-  alert("Anda telah logout!");
-  window.location.href = "login.html";
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const loginForm = document.getElementById("login-form");
+  const userInfoMobile = document.getElementById("user-info-mobile");
+  const page = window.location.pathname.split("/").pop();
 
-// ==============================
-// VALIDASI LOGIN
-// ==============================
-export function validateLogin(event) {
-  event.preventDefault();
+  const currentUser = JSON.parse(localStorage.getItem("loggedUser"));
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if (users[email] && users[email].password === password) {
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("userEmail", email);
-    localStorage.setItem("userRole", users[email].role);
-
-    alert("Login berhasil!");
-    window.location.href = "index.html";
-  } else {
-    alert("Email atau password salah!");
+  // Kalau bukan di halaman login, tapi user belum login → paksa login
+  if (!currentUser && page !== "login.html") {
+    window.location.href = "login.html";
+    return;
   }
+
+  // Kalau user sudah login & bukan di login.html → tampilkan user info
+  if (currentUser && userInfoMobile) {
+    showLogoutButton(currentUser, userInfoMobile);
+  }
+
+  // Kalau di halaman login, dan user sudah login → arahkan ke beranda
+  if (page === "login.html" && currentUser) {
+    window.location.href = "index.html";
+  }
+
+  // Kalau ada form login
+  if (loginForm) {
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (users[email] && users[email].password === password) {
+        localStorage.setItem(
+          "loggedUser",
+          JSON.stringify({ email, role: users[email].role })
+        );
+        alert("Login berhasil!");
+        window.location.href = "index.html";
+      } else {
+        alert("Email atau password salah!");
+      }
+    });
+  }
+});
+
+// ==============================
+// TAMPILKAN USER & LOGOUT BUTTON
+// ==============================
+function showLogoutButton(user, container) {
+  container.innerHTML = `
+    <div class="user-info-box">
+      <span class="user-email">${user.email}</span>
+      <button id="logout-btn" class="cta-button">Logout</button>
+    </div>
+  `;
+
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("loggedUser");
+    window.location.href = "login.html";
+  });
 }
+
 
 // ==============================
 // KONFIGURASI SUPABASE
@@ -217,3 +241,4 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 });
+
