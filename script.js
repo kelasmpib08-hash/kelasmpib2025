@@ -7,7 +7,7 @@ const users = {
 };
 
 // ==============================
-// CEK LOGIN
+// FUNGSI LOGIN & LOGOUT
 // ==============================
 function isLoggedIn() {
   return localStorage.getItem("loggedIn") === "true";
@@ -26,10 +26,11 @@ function logout() {
 }
 
 // ==============================
-// LOGIN VALIDASI
+// VALIDASI LOGIN
 // ==============================
 function validateLogin(event) {
   event.preventDefault();
+
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
@@ -37,42 +38,13 @@ function validateLogin(event) {
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("userEmail", email);
     localStorage.setItem("userRole", users[email].role);
+
     alert("Login berhasil!");
     window.location.href = "index.html";
   } else {
     alert("Email atau password salah!");
   }
 }
-
-// ==============================
-// NAVBAR LOGIN STATUS
-// ==============================
-document.addEventListener("DOMContentLoaded", function () {
-  const userInfo = document.querySelector("#user-info");
-  const loginBtn = document.querySelector("#login-btn");
-  const logoutBtn = document.querySelector("#logout-btn");
-
-  if (isLoggedIn()) {
-    const email = getUserEmail();
-    const role = getUserRole();
-
-    if (userInfo) {
-      userInfo.style.display = "inline-block";
-      userInfo.textContent = `👤 ${email} (${role})`;
-    }
-
-    if (loginBtn) loginBtn.style.display = "none";
-    if (logoutBtn) {
-      logoutBtn.style.display = "inline-block";
-      logoutBtn.addEventListener("click", logout);
-    }
-
-  } else {
-    if (userInfo) userInfo.style.display = "none";
-    if (logoutBtn) logoutBtn.style.display = "none";
-    if (loginBtn) loginBtn.style.display = "inline-block";
-  }
-});
 
 // ==============================
 // STATUS LOGIN + NAVBAR
@@ -106,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // sembunyikan upload jika user biasa
     if (uploadSection && role !== "admin") {
       uploadSection.style.display = "none";
     }
@@ -272,6 +245,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
 
 
 
