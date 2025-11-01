@@ -8,43 +8,147 @@
 }
 
 /* ==============================
-   Header & Navbar
+   HEADER & NAVBAR
 ============================== */
 header {
-  background: #0077cc;
+  background: #0077cc;            /* Warna utama biru */
   color: #fff;
   position: sticky;
   top: 0;
   z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Container utama navbar */
 .nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 25px;
-  flex-wrap: wrap;
+  padding: 12px 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: nowrap;
 }
 
-/* === User Info di kiri === */
-.user-info {
-  color: white;
-  font-weight: bold;
-  margin-right: 20px;
+/* === Bagian kiri: user info + logo === */
+.left-section {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 15px;
 }
 
-/* === Logo === */
+/* Info user (email, role) */
+.user-info {
+  color: #ffeb99;                 /* kuning lembut agar kontras */
+  font-weight: 600;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Logo teks */
 .logo {
   font-weight: bold;
-  font-size: 20px;
+  font-size: 18px;
   color: #fff;
   text-decoration: none;
-  margin-right: 40px; /* jarak dengan menu navigasi */
+  letter-spacing: 0.5px;
+  transition: 0.3s;
 }
+
+.logo:hover {
+  color: #ffcc00;
+}
+
+/* === Menu navigasi kanan === */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: #ffcc00;
+}
+
+/* Tombol logout / tombol utama */
+.btn-kuning, .logout-btn {
+  background: #ffcc00;
+  color: #003366;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn-kuning:hover, .logout-btn:hover {
+  background: #ffd633;
+}
+
+/* === Tombol menu (mobile) === */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+/* === Menu versi mobile === */
+.mobile-nav {
+  display: none;
+  background-color: #005fa3;
+  flex-direction: column;
+  padding: 10px 20px;
+}
+
+.mobile-nav a,
+.mobile-nav button {
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.mobile-nav a:hover {
+  color: #ffcc00;
+}
+
+.mobile-nav.show {
+  display: flex;
+}
+
+/* === Responsif === */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  .menu-toggle {
+    display: block;
+  }
+}
+
+
+
+
+
+
+
 
 /* === Menu Desktop === */
 .nav-links {
@@ -1459,5 +1563,6 @@ main {
     align-items: center;
   }
 }
+
 
 
