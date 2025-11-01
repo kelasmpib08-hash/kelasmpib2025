@@ -10,40 +10,50 @@
 </head>
 <body>
   <header class="navbar">
-    <div class="nav-container">
-
-      <!-- Kiri: User Info + Logo -->
-      <div class="left-section">
-        <div id="user-info" class="user-info"></div>
-        <a class="logo">Kelas MPI B</a>
-      </div>
-
-      <!-- Menu Desktop -->
-      <nav class="nav-links">
-        <a href="index.html">Beranda</a>
-        <a href="tentang.html">Tentang Kami</a>
-        <a href="makalah.html">Kumpulan Makalah</a>
-        <a href="kontak.html">Kontak</a>
-        <a href="login.html" id="login-btn-desktop">Login</a>
-        <a href="#" id="logout-btn-desktop" onclick="logout()" style="display:none;">Logout</a>
-      </nav>
-
-      <!-- Tombol Hamburger (Mobile) -->
-      <button class="menu-toggle" id="menuToggle">☰</button>
+  <div class="nav-container">
+    <!-- User Info + Logo di kiri -->
+    <div class="left-section">
+      <div id="user-info" class="user-info"></div>
+      <a class="logo">Kelas MPI B</a>
     </div>
 
-    <!-- Menu Mobile -->
-    <div class="mobile-nav" id="mobileNav">
-      <div id="user-info-mobile" class="user-info-mobile"></div>
+    <!-- Menu desktop -->
+    <nav class="nav-links">
       <a href="index.html">Beranda</a>
       <a href="tentang.html">Tentang Kami</a>
       <a href="makalah.html">Kumpulan Makalah</a>
       <a href="kontak.html">Kontak</a>
-      <a href="login.html" id="login-btn-mobile">Login</a>
-      <a href="#" id="logout-btn-mobile" onclick="logout()" style="display:none;">Logout</a>
-    </div>
-  </header>
+      <a href="login.html" id="login-btn-desktop">Login</a>
+      <a href="login.html" id="logout-btn-desktop" class="cta-button" style="display:none;">Logout</a>
+    </nav>
 
+    <!-- Tombol hamburger -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+  </div>
+
+  <!-- Menu mobile -->
+  <div class="mobile-nav" id="mobileNav">
+    <div id="user-info-mobile" class="user-info-mobile"></div>
+    <a href="index.html">Beranda</a>
+    <a href="tentang.html">Tentang Kami</a>
+    <a href="makalah.html">Kumpulan Makalah</a>
+    <a href="kontak.html">Kontak</a>
+    <a href="login.html" id="login-btn-mobile">Login</a>
+    <a href="login.html" id="logout-btn-mobile" class="cta-button" style="display:none;">Logout</a>
+  </div>
+</header>
+
+
+  <!-- Konten utama -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Selamat Datang Di Kelas MPI B</h1>
+        <p>Website resmi kelas MPI B untuk berbagi profil & makalah mahasiswa.</p>
+        <a href="makalah.html" class="cta-button">Lihat Makalah</a>
+      </div>
+    </section>
 
     <!-- Info Singkat -->
     <section class="about">
@@ -137,10 +147,6 @@
     <p>&copy; 2025 Kelas MPI (B). Semua Hak Dilindungi.</p>
   </footer>
 
-<script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
