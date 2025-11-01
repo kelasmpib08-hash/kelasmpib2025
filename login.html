@@ -23,7 +23,7 @@
         <a href="tentang.html">Tentang Kami</a>
         <a href="makalah.html">Kumpulan Makalah</a>
         <a href="kontak.html">Kontak</a>
-        <a href="login.html" id="login-btn-desktop" class="active">Login</a>
+        <a href="login.html" id="login-btn-desktop">Login</a>
         <a href="#" id="logout-btn-desktop" class="cta-button" style="display:none;">Logout</a>
       </nav>
     </div>
@@ -34,7 +34,7 @@
       <a href="tentang.html">Tentang Kami</a>
       <a href="makalah.html">Kumpulan Makalah</a>
       <a href="kontak.html">Kontak</a>
-      <a href="login.html" id="login-btn-mobile" class="active">Login</a>
+      <a href="login.html" id="login-btn-mobile">Login</a>
       <a href="#" class="cta-button" id="logout-btn-mobile" style="display:none;">Logout</a>
     </div>
   </header>
@@ -48,7 +48,7 @@
           <img src="logokelasb.png" alt="Logo Kelas MPI B" class="login-image">
 
           <h2>Login</h2>
-          <form onsubmit="validateLogin(event)">
+          <form id="loginForm">
             <input type="email" id="email" placeholder="Masukkan Email" required>
             <input type="password" id="password" placeholder="Masukkan Password" required>
             <button type="submit" class="login-btn">Login</button>
@@ -66,10 +66,7 @@
   </footer>
 
   <!-- ===== SCRIPT ===== -->
-<script type="module" src="script.js"></script>
+  <script type="module" src="script.js"></script>
 
 </body>
 </html>
-
-
-
