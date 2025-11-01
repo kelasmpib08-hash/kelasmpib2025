@@ -1397,123 +1397,7 @@ form button:hover {
 
 
 
-/* ===== NAVBAR ===== */
-.navbar {
-  background-color: #003366; /* Biru tua */
-  color: white;
-  padding: 10px 20px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
 
-.nav-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1200px;
-  margin: auto;
-}
-
-/* Bagian kiri: user info + logo sejajar */
-.left-section {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-/* User info (email + role) */
-.user-info {
-  font-size: 14px;
-  color: #ffda79; /* Kuning lembut */
-  background: rgba(255,255,255,0.1);
-  padding: 4px 10px;
-  border-radius: 8px;
-  white-space: nowrap;
-}
-
-/* Logo teks */
-.logo {
-  font-weight: bold;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 18px;
-}
-
-/* Menu kanan */
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.nav-links a {
-  color: white;
-  text-decoration: none;
-  font-size: 15px;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover {
-  color: #ffcc00;
-}
-
-/* Tombol kuning logout */
-.btn-kuning, .logout-btn {
-  background-color: #ffcc00;
-  color: #003366;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-kuning:hover, .logout-btn:hover {
-  background-color: #ffd633;
-}
-
-/* Tombol menu mobile */
-.menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* Responsif (Mobile) */
-@media (max-width: 768px) {
-  .nav-links {
-    display: none;
-  }
-
-  .menu-toggle {
-    display: block;
-  }
-
-  .mobile-nav {
-    display: none;
-    background-color: #002244;
-    flex-direction: column;
-    padding: 10px;
-  }
-
-  .mobile-nav a, .mobile-nav button {
-    padding: 10px;
-    color: white;
-    text-decoration: none;
-  }
-
-  .mobile-nav a:hover {
-    background-color: #003366;
-  }
-
-  .mobile-nav.show {
-    display: flex;
-  }
-}
 
 
 
@@ -1575,4 +1459,5 @@ main {
     align-items: center;
   }
 }
+
 
