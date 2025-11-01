@@ -46,12 +46,6 @@ header {
   margin-right: 40px; /* jarak dengan menu navigasi */
 }
 
-
-
-
-
-
-
 /* === Menu Desktop === */
 .nav-links {
   display: flex;
@@ -1414,7 +1408,6 @@ form button:hover {
 
 
 
-
 /* ==============================
    Footer
 ============================== */
@@ -1465,7 +1458,3 @@ main {
     align-items: center;
   }
 }
-
-
-
-
