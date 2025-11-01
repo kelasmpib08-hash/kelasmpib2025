@@ -1,5 +1,5 @@
 // ==============================
-// KONFIGURASI USER LOGIN (OFFLINE / LOCAL)
+// KONFIGURASI USER LOGIN
 // ==============================
 const users = {
   "mpiadmin@gmail.com": { password: "AdminMPIB2025", role: "admin" },
@@ -7,66 +7,37 @@ const users = {
 };
 
 // ==============================
-// KONFIGURASI SUPABASE
+// SUPABASE CONFIG
 // ==============================
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
 const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
 
-let supabase;
-(async () => {
-  const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-})();
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ==============================
-// UTILITAS LOGIN
+// CEK LOGIN SAAT HALAMAN DIBUKA
 // ==============================
-function isLoggedIn() {
-  return !!localStorage.getItem("loggedUser");
-}
-function getUser() {
-  return JSON.parse(localStorage.getItem("loggedUser"));
-}
-function getUserRole() {
-  const user = getUser();
-  return user ? user.role : null;
-}
-function getUserEmail() {
-  const user = getUser();
-  return user ? user.email : null;
-}
-function logout() {
-  localStorage.removeItem("loggedUser");
-  alert("Anda telah logout.");
-  window.location.href = "login.html";
-}
-
-// ==============================
-// SAAT HALAMAN DIBUKA
-// ==============================
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const page = window.location.pathname.split("/").pop();
-  const loginForm = document.getElementById("login-form");
-  const userInfo = document.getElementById("user-info");
-  const userInfoMobile = document.getElementById("user-info-mobile");
-  const logoutBtn = document.getElementById("logout-btn");
-  const uploadSection = document.querySelector(".upload-section");
+  const loginForm = document.getElementById("loginForm");
+  const currentUser = JSON.parse(localStorage.getItem("loggedUser"));
 
-  const currentUser = getUser();
-
-  // === 1. CEK LOGIN ===
+  // Kalau bukan di login.html tapi user belum login → arahkan ke login
   if (!currentUser && page !== "login.html") {
     window.location.href = "login.html";
     return;
   }
 
-  // === 2. LOGIN PAGE ===
-  if (page === "login.html" && currentUser) {
+  // Kalau user sudah login dan di login.html → arahkan ke beranda
+  if (currentUser && page === "login.html") {
     window.location.href = "index.html";
     return;
   }
 
+  // Event login
   if (loginForm) {
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -86,41 +57,59 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // === 3. INDEX / MAHALAH PAGE ===
-  if (currentUser) {
-    if (userInfo)
-      userInfo.innerHTML = `👤 ${currentUser.email} (${currentUser.role})`;
-    if (userInfoMobile)
-      showLogoutButton(currentUser, userInfoMobile);
-
-    if (logoutBtn) {
-      logoutBtn.style.display = "inline-block";
-      logoutBtn.addEventListener("click", logout);
-    }
-
-    if (uploadSection && currentUser.role !== "admin") {
-      uploadSection.style.display = "none";
-    }
-
-    if (page === "makalah.html") {
-      await loadMakalahTable();
-    }
-  }
+  // Jika sudah login, tampilkan info user & tombol logout
+  updateNavbarStatus();
 });
 
 // ==============================
-// TAMPILKAN USER INFO (MOBILE)
+// UPDATE STATUS NAVBAR LOGIN/LOGOUT
 // ==============================
-function showLogoutButton(user, container) {
-  container.innerHTML = `
-    <div class="user-info-box">
-      <span class="user-email">${user.email}</span>
-      <button id="logout-btn-mobile" class="cta-button">Logout</button>
-    </div>
-  `;
-  document
-    .getElementById("logout-btn-mobile")
-    .addEventListener("click", logout);
+function updateNavbarStatus() {
+  const currentUser = JSON.parse(localStorage.getItem("loggedUser"));
+  const loginDesktop = document.getElementById("login-btn-desktop");
+  const logoutDesktop = document.getElementById("logout-btn-desktop");
+  const loginMobile = document.getElementById("login-btn-mobile");
+  const logoutMobile = document.getElementById("logout-btn-mobile");
+
+  if (currentUser) {
+    if (loginDesktop) loginDesktop.style.display = "none";
+    if (logoutDesktop) logoutDesktop.style.display = "inline-block";
+    if (loginMobile) loginMobile.style.display = "none";
+    if (logoutMobile) logoutMobile.style.display = "inline-block";
+
+    if (logoutDesktop)
+      logoutDesktop.addEventListener("click", logout);
+    if (logoutMobile)
+      logoutMobile.addEventListener("click", logout);
+  } else {
+    if (loginDesktop) loginDesktop.style.display = "inline-block";
+    if (logoutDesktop) logoutDesktop.style.display = "none";
+    if (loginMobile) loginMobile.style.display = "inline-block";
+    if (logoutMobile) logoutMobile.style.display = "none";
+  }
+}
+
+// ==============================
+// LOGOUT FUNGSI
+// ==============================
+function logout() {
+  localStorage.removeItem("loggedUser");
+  alert("Anda telah logout.");
+  window.location.href = "login.html";
+}
+
+// ==============================
+// GET INFO USER
+// ==============================
+function getUser() {
+  return JSON.parse(localStorage.getItem("loggedUser"));
+}
+function getUserRole() {
+  const user = getUser();
+  return user ? user.role : null;
+}
+function isLoggedIn() {
+  return !!localStorage.getItem("loggedUser");
 }
 
 // ==============================
@@ -130,7 +119,7 @@ async function loadMakalahTable() {
   const tableBody = document.getElementById("makalahTableBody");
   if (!tableBody) return;
 
-  tableBody.innerHTML = "<tr><td colspan='4'>⏳ Memuat data...</td></tr>";
+  tableBody.innerHTML = "<tr><td colspan='4'>Memuat data...</td></tr>";
 
   const { data: files, error } = await supabase.storage
     .from("MAKALAH_DAN_PPT")
@@ -138,38 +127,36 @@ async function loadMakalahTable() {
 
   if (error) {
     console.error("Gagal load makalah:", error);
-    tableBody.innerHTML =
-      "<tr><td colspan='4'>❌ Gagal memuat data makalah!</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='4'>❌ Gagal memuat data makalah!</td></tr>";
     return;
   }
-
-  tableBody.innerHTML = "";
-  const role = getUserRole();
 
   if (!files || files.length === 0) {
-    tableBody.innerHTML =
-      "<tr><td colspan='4'>Belum ada makalah diunggah.</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='4'>Belum ada makalah diunggah.</td></tr>";
     return;
   }
+
+  const role = getUserRole();
+  tableBody.innerHTML = "";
 
   files.forEach((file) => {
     const fileUrl = `${SUPABASE_URL}/storage/v1/object/public/MAKALAH_DAN_PPT/${file.name}`;
     const row = document.createElement("tr");
 
     let actionButtons = `
-      <button class="cta-button" onclick="window.open('${fileUrl}', '_blank')">Lihat</button>
-      <a href="${fileUrl}" download class="cta-button">Download</a>
+      <button class="lihat-btn" onclick="window.open('${fileUrl}', '_blank')">Lihat</button>
+      <a href="${fileUrl}" download class="download-btn">Download</a>
     `;
 
     if (role === "admin") {
       actionButtons += `
-        <button class="cta-button" style="background:#ff4444" onclick="hapusMakalah('${file.name}')">Hapus</button>
+        <button class="hapus-btn" onclick="hapusMakalah('${file.name}')">Hapus</button>
       `;
     }
 
     row.innerHTML = `
       <td>${file.name}</td>
-      <td>${new Date().toLocaleDateString()}</td>
+      <td>${new Date(file.created_at || Date.now()).toLocaleDateString()}</td>
       <td>${file.metadata?.size ? (file.metadata.size / 1024 / 1024).toFixed(2) + " MB" : "-"}</td>
       <td>${actionButtons}</td>
     `;
@@ -178,61 +165,61 @@ async function loadMakalahTable() {
 }
 
 // ==============================
-// HAPUS FILE MAKALAH
+// HAPUS MAKALAH (ADMIN SAJA)
 // ==============================
-async function hapusMakalah(fileName) {
+window.hapusMakalah = async function (fileName) {
   const role = getUserRole();
   if (role !== "admin") {
-    alert("❌ Anda tidak memiliki izin untuk menghapus file!");
+    alert("❌ Anda tidak memiliki izin untuk menghapus!");
     return;
   }
 
-  if (confirm(`Yakin ingin menghapus "${fileName}" ?`)) {
+  if (confirm(`Yakin ingin menghapus file "${fileName}" ?`)) {
     const { error } = await supabase.storage
       .from("MAKALAH_DAN_PPT")
       .remove([fileName]);
     if (error) {
       alert("❌ Gagal menghapus file!");
-      console.error(error);
-    } else {
-      alert("✅ File berhasil dihapus!");
-      loadMakalahTable();
+      console.error("Error hapus:", error);
+      return;
     }
+    alert("✅ File berhasil dihapus!");
+    loadMakalahTable();
   }
-}
+};
 
 // ==============================
-// AUTO LOGOUT SETELAH 20 MENIT
+// AUTO LOGOUT (20 MENIT)
 // ==============================
 let waktuKunjungan = 20 * 60;
 function mulaiTimerKunjungan() {
-  const timer = setInterval(() => {
+  const hitungMundur = setInterval(() => {
     waktuKunjungan--;
     if (waktuKunjungan <= 0) {
-      clearInterval(timer);
-      alert("⏰ Waktu 20 menit habis, Anda logout otomatis.");
+      clearInterval(hitungMundur);
+      alert("⏰ Waktu 20 menit habis, Anda akan logout otomatis.");
       logout();
     }
   }, 1000);
-
-  ["mousemove", "keydown", "click", "scroll"].forEach((evt) =>
-    document.addEventListener(evt, () => (waktuKunjungan = 20 * 60))
-  );
 }
-
 document.addEventListener("DOMContentLoaded", () => {
-  if (isLoggedIn()) mulaiTimerKunjungan();
+  if (isLoggedIn()) {
+    mulaiTimerKunjungan();
+    ["mousemove", "keydown", "click", "scroll"].forEach((evt) =>
+      document.addEventListener(evt, () => (waktuKunjungan = 20 * 60))
+    );
+  }
 });
 
 // ==============================
 // MOBILE NAV TOGGLE
 // ==============================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
   const menuToggle = document.getElementById("menuToggle");
   const mobileNav = document.getElementById("mobileNav");
   if (menuToggle && mobileNav) {
-    menuToggle.addEventListener("click", () => {
-      mobileNav.classList.toggle("active");
-    });
+    menuToggle.addEventListener("click", () =>
+      mobileNav.classList.toggle("active")
+    );
   }
 });
