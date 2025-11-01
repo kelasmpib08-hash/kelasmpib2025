@@ -63,20 +63,37 @@ header {
   text-decoration: underline;
 }
 
-/* === Tombol Logout / CTA === */
-.cta-button {
-  background: #ffcc00;
-  color: #ffffff !important;
-  padding: 8px 15px;
-  border-radius: 6px;
+/* === Tombol Kuning Umum (Lihat Makalah & Logout) === */
+.btn-kuning {
+  background-color: #ffcc00;       /* Warna kuning cerah */
+  color: #ffffff !important;       /* Teks putih */
+  padding: 10px 20px;
+  border-radius: 8px;
   font-weight: bold;
   text-decoration: none;
-  transition: 0.3s;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
 }
 
-.cta-button:hover {
-  background: #e6b800;
+.btn-kuning:hover {
+  background-color: #e6b800;       /* Sedikit lebih gelap saat hover */
+  transform: translateY(-2px);
 }
+
+/* === Tombol Logout (khusus navbar) === */
+.logout-btn {
+  margin-left: 10px;
+}
+
+/* === Versi Mobile === */
+.logout-btn-mobile {
+  width: 100%;
+  margin-top: 10px;
+}
+
 
 /* === Tombol Hamburger === */
 .menu-toggle {
