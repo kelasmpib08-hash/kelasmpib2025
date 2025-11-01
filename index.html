@@ -6,58 +6,56 @@
   <title>Kelas MPI B - Beranda</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
 <body>
-<header class="navbar">
-  <div class="nav-container">
-    <!-- User Info + Logo di kiri -->
-    <div class="left-section">
-      <div id="user-info" class="user-info"></div>
-      <a class="logo">Kelas MPI B</a>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="navbar">
+    <div class="nav-container">
+      <!-- Kiri: Info User + Logo -->
+      <div class="left-section">
+        <div id="user-info" class="user-info"></div>
+        <a class="logo" href="index.html">Kelas MPI B</a>
+      </div>
+
+      <!-- Menu Desktop -->
+      <nav class="nav-links">
+        <a href="index.html">Beranda</a>
+        <a href="tentang.html">Tentang Kami</a>
+        <a href="makalah.html">Kumpulan Makalah</a>
+        <a href="kontak.html">Kontak</a>
+        <a href="login.html" id="login-btn-desktop">Login</a>
+        <button id="logout-btn-desktop" class="btn-kuning logout-btn" style="display:none;">Logout</button>
+      </nav>
+
+      <!-- Tombol Menu Mobile -->
+      <button class="menu-toggle" id="menuToggle">☰</button>
     </div>
 
-    <!-- Menu desktop -->
-    <nav class="nav-links">
+    <!-- Menu Mobile -->
+    <div class="mobile-nav" id="mobileNav">
+      <div id="user-info-mobile" class="user-info-mobile"></div>
       <a href="index.html">Beranda</a>
       <a href="tentang.html">Tentang Kami</a>
       <a href="makalah.html">Kumpulan Makalah</a>
       <a href="kontak.html">Kontak</a>
-      <a href="login.html" id="login-btn-desktop">Login</a>
-<button id="logout-btn-desktop" class="btn-kuning logout-btn" style="display:none;">Logout</button>
-    </nav>
+      <a href="login.html" id="login-btn-mobile">Login</a>
+      <button id="logout-btn-mobile" class="btn-kuning logout-btn-mobile" style="display:none;">Logout</button>
+    </div>
+  </header>
 
-    <!-- Tombol hamburger -->
-    <button class="menu-toggle" id="menuToggle">☰</button>
-  </div>
-
-  <!-- Menu mobile -->
-  <div class="mobile-nav" id="mobileNav">
-    <div id="user-info-mobile" class="user-info-mobile"></div>
-    <a href="index.html">Beranda</a>
-    <a href="tentang.html">Tentang Kami</a>
-    <a href="makalah.html">Kumpulan Makalah</a>
-    <a href="kontak.html">Kontak</a>
-    <a href="login.html" id="login-btn-mobile">Login</a>
-<button id="logout-btn-mobile" class="btn-kuning logout-btn-mobile" style="display:none;">Logout</button>
-  </div>
-</header>
-
-
-
-  <!-- Konten utama -->
+  <!-- ===== KONTEN UTAMA ===== -->
   <main>
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-text">
-        <h1>Selamat Datang Di Kelas MPI B</h1>
+        <h1>Selamat Datang di Kelas MPI B</h1>
         <p>Website resmi kelas MPI B untuk berbagi profil & makalah mahasiswa.</p>
-<a href="makalah.html" class="btn-kuning">Lihat Makalah</a>
-
+        <a href="makalah.html" class="btn-kuning">Lihat Makalah</a>
       </div>
     </section>
 
-    <!-- Info Singkat -->
+    <!-- Informasi Singkat -->
     <section class="about">
       <h2>Informasi Singkat</h2>
       <div class="about-content">
@@ -77,40 +75,35 @@
       </div>
     </section>
 
-<!-- ===== INFO TERKINI ===== -->
-<section class="latest-info">
-  <h2>Info Terkini</h2>
+    <!-- Info Terkini -->
+    <section class="latest-info">
+      <h2>Info Terkini</h2>
+      <div class="brochure-container">
+        <div class="brochure-card">
+          <img src="info1.jpg" alt="Brosur Info 1">
+          <div class="card-body">
+            <h3>Hari Jadi Provinsi Jawa Timur</h3>
+            <p>Tgl 12 Oktober 2025.</p>
+          </div>
+        </div>
 
-  <div class="brochure-container">
-    <div class="brochure-card">
-      <img src="info1.jpg" alt="Brosur Info 1">
-      <div class="card-body">
-        <h3>Hari Jadi Provinsi Jawa Timur</h3>
-        <p>Tgl 12 Oktober 2025.</p>
+        <div class="brochure-card">
+          <img src="info2.jpg" alt="Brosur Info 2">
+          <div class="card-body">
+            <h3>Hari Kesaktian Pancasila</h3>
+            <p>Tgl 01 Oktober 2025.</p>
+          </div>
+        </div>
+
+        <div class="brochure-card">
+          <img src="info3.jpg" alt="Brosur Info 3">
+          <div class="card-body">
+            <h3>Hari Santri</h3>
+            <p>Tgl 22 Oktober 2025.</p>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="brochure-card">
-      <img src="info2.jpg" alt="Brosur Info 2">
-      <div class="card-body">
-        <h3>Hari Kesaktian Pancasila</h3>
-        <p>Tgl 01 Oktober 2025.</p>
-      </div>
-    </div>
-
-    <!-- Card tambahan -->
-    <div class="brochure-card">
-      <img src="info3.jpg" alt="Brosur Info 3">
-      <div class="card-body">
-        <h3>Hari Santri</h3>
-        <p>Tgl 22 Oktober 2025.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-  
+    </section>
 
     <!-- Struktur Kelas -->
     <section class="struktur">
@@ -119,7 +112,10 @@
         <div class="struktur-box">
           <img src="data5.jpg" alt="Struktur Kelas">
           <h3>Semua Anggota Struktur</h3>
-          <p>Seluruh anggota struktur kelas bekerja sama dalam mengatur, mengelola, serta melaksanakan rancangan kegiatan kelas dengan baik.</p>
+          <p>
+            Seluruh anggota struktur kelas bekerja sama dalam mengatur, mengelola, serta 
+            melaksanakan rancangan kegiatan kelas dengan baik.
+          </p>
         </div>
       </div>
     </section>
@@ -144,11 +140,13 @@
     </section>
   </main>
 
-  <!-- Footer -->
+  <!-- ===== FOOTER ===== -->
   <footer>
     <p>&copy; 2025 Kelas MPI (B). Semua Hak Dilindungi.</p>
   </footer>
 
-<script type="module" src="script.js"></script>
+  <!-- ===== PANGGIL SCRIPT LOGIN ===== -->
+  <script type="module" src="script.js"></script>
+
 </body>
 </html>
