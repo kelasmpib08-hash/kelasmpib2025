@@ -25,19 +25,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginForm");
   const currentUser = JSON.parse(localStorage.getItem("loggedUser"));
 
-  // Kalau bukan di login.html tapi user belum login → arahkan ke login
   if (!currentUser && page !== "login.html") {
     window.location.href = "login.html";
     return;
   }
 
-  // Kalau user sudah login dan di login.html → arahkan ke beranda
   if (currentUser && page === "login.html") {
     window.location.href = "index.html";
     return;
   }
 
-  // Event login
   if (loginForm) {
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -57,8 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Jika sudah login, tampilkan info user & tombol logout
   updateNavbarStatus();
+  tampilkanUserDiNavbar();
 });
 
 // ==============================
@@ -77,10 +74,8 @@ function updateNavbarStatus() {
     if (loginMobile) loginMobile.style.display = "none";
     if (logoutMobile) logoutMobile.style.display = "inline-block";
 
-    if (logoutDesktop)
-      logoutDesktop.addEventListener("click", logout);
-    if (logoutMobile)
-      logoutMobile.addEventListener("click", logout);
+    if (logoutDesktop) logoutDesktop.onclick = logout;
+    if (logoutMobile) logoutMobile.onclick = logout;
   } else {
     if (loginDesktop) loginDesktop.style.display = "inline-block";
     if (logoutDesktop) logoutDesktop.style.display = "none";
@@ -110,6 +105,24 @@ function getUserRole() {
 }
 function isLoggedIn() {
   return !!localStorage.getItem("loggedUser");
+}
+
+// ==============================
+// TAMPILKAN EMAIL + ROLE DI NAVBAR KIRI
+// ==============================
+function tampilkanUserDiNavbar() {
+  const userInfoContainer = document.createElement("div");
+  userInfoContainer.classList.add("user-info");
+
+  const navbar = document.querySelector(".nav-container");
+  const currentUser = getUser();
+
+  if (currentUser && navbar) {
+    userInfoContainer.innerHTML = `
+      <span><i class="fa fa-user"></i> ${currentUser.email} (${currentUser.role})</span>
+    `;
+    navbar.prepend(userInfoContainer);
+  }
 }
 
 // ==============================
