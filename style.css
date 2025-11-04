@@ -83,7 +83,7 @@ header {
   transform: translateY(-2px);
 }
 
-/* === Tombol Logout (khusus navbar desktop) === */
+/* === Tombol Logout (khusus navbar) === */
 .logout-btn {
   margin-left: 10px;
 }
@@ -92,24 +92,7 @@ header {
 .logout-btn-mobile {
   width: 100%;
   margin-top: 10px;
-  text-align: center;
-  background-color: #ffcc00;       /* Warna kuning sama */
-  color: #ffffff !important;
-  padding: 10px 0;
-  border-radius: 8px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-  transition: 0.3s ease;
 }
-
-/* Efek hover untuk mobile logout */
-.logout-btn-mobile:hover {
-  background-color: #e6b800;
-  transform: scale(1.03);
-}
-
 
 
 /* === Tombol Hamburger === */
@@ -122,56 +105,40 @@ header {
   display: none; /* sembunyikan di desktop */
 }
 
-/* === NAVBAR MOBILE === */
-.menu-toggle {
-  display: none;
-  font-size: 26px;
-  color: white;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
+/* === MOBILE NAV === */
 .mobile-nav {
   display: none;
   flex-direction: column;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.85);
   position: absolute;
-  top: 60px;
+  top: 65px;
   right: 15px;
   padding: 15px;
   border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   z-index: 1000;
   width: 200px;
   animation: fadeIn 0.3s ease;
 }
 
-.mobile-nav.active {
-  display: flex;
-}
-
 .mobile-nav a {
-  color: white;
-  padding: 10px;
+  padding: 12px;
   text-decoration: none;
-  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .mobile-nav a:hover {
   background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
 
-/* Tombol menu hanya muncul di layar kecil */
-@media (max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
-
-  .nav-links {
-    display: none;
-  }
+.mobile-nav.active {
+  display: flex;
 }
-
 
 /* Animasi muncul */
 @keyframes fadeIn {
@@ -1491,5 +1458,6 @@ main {
     align-items: center;
   }
 }
+
 
 
