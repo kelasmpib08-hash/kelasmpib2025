@@ -105,40 +105,56 @@ header {
   display: none; /* sembunyikan di desktop */
 }
 
-/* === MOBILE NAV === */
+/* === NAVBAR MOBILE === */
+.menu-toggle {
+  display: none;
+  font-size: 26px;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .mobile-nav {
   display: none;
   flex-direction: column;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.9);
   position: absolute;
-  top: 65px;
+  top: 60px;
   right: 15px;
   padding: 15px;
   border-radius: 12px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   z-index: 1000;
   width: 200px;
   animation: fadeIn 0.3s ease;
 }
 
+.mobile-nav.active {
+  display: flex;
+}
+
 .mobile-nav a {
-  padding: 12px;
-  text-decoration: none;
   color: white;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: background 0.3s ease, transform 0.2s ease;
+  padding: 10px;
+  text-decoration: none;
+  border-radius: 6px;
 }
 
 .mobile-nav a:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
 }
 
-.mobile-nav.active {
-  display: flex;
+/* Tombol menu hanya muncul di layar kecil */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+  }
 }
+
 
 /* Animasi muncul */
 @keyframes fadeIn {
@@ -1458,3 +1474,4 @@ main {
     align-items: center;
   }
 }
+
