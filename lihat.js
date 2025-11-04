@@ -1,19 +1,22 @@
 // ==============================
-// LIHAT MAKALAH (versi sinkron dengan script.js terbaru)
+// LIHAT MAKALAH (versi konek Supabase Bucket makalah_dan_ppt)
 // ==============================
 
-// Import Supabase
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+// Import Supabase (pakai CDN agar bisa jalan di browser)
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 // === KONFIGURASI SUPABASE ===
+// dasarakuntansi.js
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+// Ganti dengan kredensial milikmu
 const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // === Ambil parameter dari URL ===
 const params = new URLSearchParams(window.location.search);
-const fileName = params.get("file"); // nama file
+const fileName = params.get("file"); // nama file yang dikirim lewat URL
 const title = params.get("judul") || "Makalah / PPT";
 
 // === Elemen HTML ===
@@ -33,25 +36,25 @@ async function loadMakalah() {
     statusText.textContent = "⏳ Sedang memuat file...";
 
     // Ambil URL publik dari bucket
-    const { data: publicUrlData, error } = await supabase.storage
-      .from("MAKALAH_DAN_PPT") // harus sama persis dengan nama bucket
-      .getPublicUrl(fileName);
+    const { data, error } = await supabase.storage
+      .from("makalah_dan_ppt")
+      .getPublicUrl(`makalah_dan_ppt/${fileName}`);
 
-    if (error || !publicUrlData) throw error || new Error("File tidak ditemukan di Supabase.");
+    if (error || !data) throw error || new Error("File tidak ditemukan di Supabase.");
 
-    const fileUrl = publicUrlData.publicUrl;
+    const fileUrl = data.publicUrl;
     statusText.textContent = "";
 
     // === Info makalah tampil rapi ===
     infoPertemuan.innerHTML = `
-      <div style="padding:15px;max-width:600px;margin:auto;text-align:left;">
+      <div class="makalah-info" style="padding:15px;max-width:600px;margin:auto;text-align:left;">
         <h3 style="margin-bottom:8px;color:#111;">${title}</h3>
         <p><strong>Nama File:</strong> ${fileName}</p>
         <button id="downloadBtn" style="margin-top:12px;padding:10px 18px;background:#1d4ed8;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">⬇️ Download File</button>
       </div>
     `;
 
-    // === Preview berdasarkan ekstensi ===
+    // === Tampilkan preview sesuai format ===
     const ext = fileName.split(".").pop().toLowerCase();
     fileContainer.innerHTML = "";
 
@@ -103,3 +106,8 @@ async function loadMakalah() {
 
 // Jalankan setelah halaman siap
 document.addEventListener("DOMContentLoaded", loadMakalah);
+
+
+
+
+
