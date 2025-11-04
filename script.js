@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateNavbarStatus();
   tampilkanUserDiNavbar();
+  loadMakalahTable();
 });
 
 // ==============================
@@ -108,7 +109,7 @@ function isLoggedIn() {
 }
 
 // ==============================
-// TAMPILKAN EMAIL + ROLE DI NAVBAR KIRI
+// TAMPILKAN EMAIL + ROLE DI NAVBAR
 // ==============================
 function tampilkanUserDiNavbar() {
   const userInfoContainer = document.createElement("div");
@@ -140,12 +141,14 @@ async function loadMakalahTable() {
 
   if (error) {
     console.error("Gagal load makalah:", error);
-    tableBody.innerHTML = "<tr><td colspan='4'>❌ Gagal memuat data makalah!</td></tr>";
+    tableBody.innerHTML =
+      "<tr><td colspan='4'>❌ Gagal memuat data makalah!</td></tr>";
     return;
   }
 
   if (!files || files.length === 0) {
-    tableBody.innerHTML = "<tr><td colspan='4'>Belum ada makalah diunggah.</td></tr>";
+    tableBody.innerHTML =
+      "<tr><td colspan='4'>Belum ada makalah diunggah.</td></tr>";
     return;
   }
 
@@ -159,6 +162,7 @@ async function loadMakalahTable() {
     let actionButtons = `
       <button class="lihat-btn" onclick="window.open('${fileUrl}', '_blank')">Lihat</button>
       <a href="${fileUrl}" download class="download-btn">Download</a>
+      <button class="edit-btn" onclick="editMakalah('${file.name}')">Edit</button>
     `;
 
     if (role === "admin") {
@@ -202,6 +206,58 @@ window.hapusMakalah = async function (fileName) {
 };
 
 // ==============================
+// FITUR EDIT MAKALAH (ADMIN SAJA)
+// ==============================
+window.editMakalah = async function (fileName) {
+  const role = getUserRole();
+  if (role !== "admin") {
+    alert("❌ Anda tidak memiliki izin untuk mengedit!");
+    return;
+  }
+
+  // Cek data di tabel "makalah" di Supabase
+  const { data, error } = await supabase
+    .from("makalah")
+    .select("*")
+    .eq("file_name", fileName)
+    .single();
+
+  if (error || !data) {
+    alert("⚠️ Data belum ada di tabel 'makalah'. Silakan isi baru.");
+  }
+
+  const judulBaru = prompt("Judul baru:", data?.judul || "");
+  const kelompokBaru = prompt("Nomor kelompok baru:", data?.kelompok || "");
+  const tanggalBaru = prompt(
+    "Tanggal baru (YYYY-MM-DD):",
+    data?.tanggal || new Date().toISOString().split("T")[0]
+  );
+
+  if (!judulBaru || !kelompokBaru || !tanggalBaru) {
+    alert("⚠️ Semua kolom harus diisi!");
+    return;
+  }
+
+  const { error: updateError } = await supabase
+    .from("makalah")
+    .upsert({
+      file_name: fileName,
+      judul: judulBaru,
+      kelompok: kelompokBaru,
+      tanggal: tanggalBaru,
+    });
+
+  if (updateError) {
+    alert("❌ Gagal memperbarui data makalah!");
+    console.error(updateError);
+    return;
+  }
+
+  alert("✅ Data makalah berhasil diperbarui!");
+  loadMakalahTable();
+};
+
+// ==============================
 // AUTO LOGOUT (20 MENIT)
 // ==============================
 let waktuKunjungan = 20 * 60;
@@ -218,8 +274,8 @@ function mulaiTimerKunjungan() {
 document.addEventListener("DOMContentLoaded", () => {
   if (isLoggedIn()) {
     mulaiTimerKunjungan();
-    ["mousemove", "keydown", "click", "scroll"].forEach((evt) =>
-      document.addEventListener(evt, () => (waktuKunjungan = 20 * 60))
+    ["mousemove", "keydown", "click", "scroll"].forEach(
+      (evt) => (document.addEventListener(evt, () => (waktuKunjungan = 20 * 60)))
     );
   }
 });
@@ -244,5 +300,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-
