@@ -11,30 +11,36 @@
   />
 </head>
 <body>
-  <!-- ============ NAVBAR ============ -->
-  <header class="navbar">
-    <div class="nav-container">
-      <a class="logo">Kelas MPI B</a>
-      <button class="menu-toggle" id="menuToggle">☰</button>
-      <nav class="nav-links">
-        <a href="index.html">Beranda</a>
-        <a href="tentang.html">Tentang Kami</a>
-        <a href="makalah.html">Kumpulan Makalah</a>
-        <a href="kontak.html">Kontak</a>
-        <a href="login.html" id="login-btn-desktop">Login</a>
-        <a href="#" id="logout-btn-desktop" class="cta-button" style="display:none;">Logout</a>
-      </nav>
-    </div>
+<!-- ============ NAVBAR ============ -->
+<header class="navbar">
+  <div class="nav-container">
+    <a class="logo">Kelas MPI B</a>
 
-    <div class="mobile-nav" id="mobileNav">
+    <!-- Tombol menu hamburger -->
+    <button class="menu-toggle" id="menuToggle">☰</button>
+
+    <!-- Menu Desktop -->
+    <nav class="nav-links">
       <a href="index.html">Beranda</a>
       <a href="tentang.html">Tentang Kami</a>
       <a href="makalah.html">Kumpulan Makalah</a>
       <a href="kontak.html">Kontak</a>
-      <a href="login.html" id="login-btn-mobile">Login</a>
-      <a href="#" id="logout-btn-mobile" class="cta-button" style="display:none;">Logout</a>
-    </div>
-  </header>
+      <a href="login.html" id="login-btn-desktop">Login</a>
+      <a href="#" id="logout-btn-desktop" class="cta-button" style="display:none;">Logout</a>
+    </nav>
+  </div>
+
+  <!-- Menu Mobile -->
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="index.html">Beranda</a>
+    <a href="tentang.html">Tentang Kami</a>
+    <a href="makalah.html">Kumpulan Makalah</a>
+    <a href="kontak.html">Kontak</a>
+    <a href="login.html" id="login-btn-mobile">Login</a>
+    <a href="#" id="logout-btn-mobile" class="cta-button" style="display:none;">Logout</a>
+  </nav>
+</header>
+
 
   <!-- ============ UPLOAD SECTION ============ -->
   <main>
@@ -101,3 +107,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
