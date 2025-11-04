@@ -3,103 +3,48 @@
 // ==============================
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Ganti dengan kredensial milikmu
 const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ==============================
-// UPLOAD MAKALAH DASAR AKUNTANSI
+// LOAD DATA MAKALAH
 // ==============================
 document.addEventListener("DOMContentLoaded", async () => {
-  const form = document.getElementById("makalahForm");
-  const tableBody = document.querySelector("#makalahTable tbody");
+  const tableBody = document.getElementById("makalahTableBody");
   const searchInput = document.getElementById("searchInput");
+  const filterPertemuan = document.getElementById("filterPertemuan");
 
-  // Muat data awal
+  // Tampilkan data awal
   await loadMakalah();
-
-  // ============================
-  // UPLOAD FILE BARU
-  // ============================
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const judul = document.getElementById("judul").value.trim();
-    const kelompok = document.getElementById("kelompok").value.trim();
-    const tanggal = document.getElementById("tanggal").value;
-    const pertemuan = parseInt(document.getElementById("pertemuan").value);
-    const fileInput = document.getElementById("file");
-
-    if (!fileInput.files.length) {
-      alert("Pilih file terlebih dahulu!");
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const fileName = `${Date.now()}_${file.name}`;
-
-    try {
-      // Upload file ke bucket (nama HARUS sama persis di Supabase)
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("MAKALAH_DAN_PPT")
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Ambil URL publik file
-      const { data: publicUrlData } = supabase.storage
-        .from("MAKALAH_DAN_PPT")
-        .getPublicUrl(fileName);
-
-      const fileUrl = publicUrlData.publicUrl;
-
-      // Simpan metadata ke tabel Supabase
-      const { error: insertError } = await supabase
-        .from("MAKALAH_DAN_PPT")
-        .insert([
-          {
-            judul,
-            kelompok,
-            tanggal,
-            pertemuan,
-            file_name: fileName,
-            file_url: fileUrl,
-            uploaded_by: "user", // bisa ubah sesuai login
-            created_at: new Date().toISOString(),
-          },
-        ]);
-
-      if (insertError) throw insertError;
-
-      alert("✅ Makalah berhasil diunggah!");
-      form.reset();
-      await loadMakalah();
-    } catch (err) {
-      console.error("❌ Gagal upload:", err.message);
-      alert("❌ Gagal mengunggah makalah: " + err.message);
-    }
-  });
 
   // ============================
   // MUAT DATA DARI SUPABASE
   // ============================
-  async function loadMakalah() {
-    tableBody.innerHTML = "<tr><td colspan='6'>⏳ Memuat data...</td></tr>";
+  async function loadMakalah(keyword = "", pertemuan = "all") {
+    tableBody.innerHTML = "<tr><td colspan='5'>⏳ Memuat data...</td></tr>";
 
-    const { data, error } = await supabase
-      .from("MAKALAH_DAN_PPT")
-      .select("*")
-      .order("id", { ascending: false });
+    let query = supabase.from("MAKALAH_DAN_PPT").select("*").order("id", { ascending: false });
+
+    if (keyword) {
+      query = query.or(
+        `judul.ilike.%${keyword}%,kelompok.ilike.%${keyword}%,file_name.ilike.%${keyword}%`
+      );
+    }
+    if (pertemuan !== "all") {
+      query = query.eq("pertemuan", parseInt(pertemuan));
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      tableBody.innerHTML = "<tr><td colspan='6'>❌ Gagal memuat data!</td></tr>";
       console.error("Load error:", error.message);
+      tableBody.innerHTML = "<tr><td colspan='5'>❌ Gagal memuat data!</td></tr>";
       return;
     }
 
     if (!data || data.length === 0) {
-      tableBody.innerHTML = "<tr><td colspan='6'>Belum ada makalah diunggah.</td></tr>";
+      tableBody.innerHTML = "<tr><td colspan='5'>Belum ada makalah diunggah.</td></tr>";
       return;
     }
 
@@ -117,59 +62,79 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${item.judul}</td>
         <td>${item.kelompok}</td>
         <td>${item.tanggal}</td>
-        <td>${item.pertemuan}</td>
-        <td><a href="${item.file_url}" target="_blank">${item.file_name}</a></td>
         <td>
-          <button class="delete-btn" data-id="${item.id}" 
-            style="background:#dc2626;color:white;border:none;padding:6px 10px;border-radius:5px;cursor:pointer;">
-            Hapus
-          </button>
+          <button class="lihat-btn" onclick="window.open('${item.file_url}', '_blank')">Lihat</button>
+          <a href="${item.file_url}" download class="download-btn">Download</a>
+          <button class="edit-btn" data-id="${item.id}">Edit</button>
+          <button class="hapus-btn" data-id="${item.id}">Hapus</button>
         </td>
       `;
       tableBody.appendChild(tr);
     });
 
-    // Tombol hapus
-    document.querySelectorAll(".delete-btn").forEach((btn) => {
+    // ============ Hapus ============
+    document.querySelectorAll(".hapus-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.dataset.id;
         if (confirm("Yakin ingin menghapus makalah ini?")) {
-          const { error } = await supabase
-            .from("MAKALAH_DAN_PPT")
-            .delete()
-            .eq("id", id);
+          const { error } = await supabase.from("MAKALAH_DAN_PPT").delete().eq("id", id);
           if (error) {
-            alert("❌ Gagal menghapus data: " + error.message);
+            alert("❌ Gagal menghapus: " + error.message);
           } else {
-            alert("✅ Data berhasil dihapus!");
+            alert("✅ Berhasil dihapus!");
             await loadMakalah();
           }
+        }
+      });
+    });
+
+    // ============ Edit ============
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const { data, error } = await supabase.from("MAKALAH_DAN_PPT").select("*").eq("id", id).single();
+        if (error || !data) {
+          alert("Data tidak ditemukan!");
+          return;
+        }
+
+        const newJudul = prompt("Judul baru:", data.judul);
+        const newKelompok = prompt("Kelompok baru:", data.kelompok);
+        const newTanggal = prompt("Tanggal baru (YYYY-MM-DD):", data.tanggal);
+
+        if (!newJudul || !newKelompok || !newTanggal) {
+          alert("Semua kolom wajib diisi!");
+          return;
+        }
+
+        const { error: updateError } = await supabase
+          .from("MAKALAH_DAN_PPT")
+          .update({
+            judul: newJudul,
+            kelompok: newKelompok,
+            tanggal: newTanggal,
+          })
+          .eq("id", id);
+
+        if (updateError) {
+          alert("❌ Gagal memperbarui data: " + updateError.message);
+        } else {
+          alert("✅ Data berhasil diperbarui!");
+          await loadMakalah();
         }
       });
     });
   }
 
   // ============================
-  // FITUR CARI
+  // FITUR CARI & FILTER
   // ============================
   searchInput.addEventListener("input", async (e) => {
-    const keyword = e.target.value.toLowerCase();
+    const keyword = e.target.value.trim().toLowerCase();
+    await loadMakalah(keyword, filterPertemuan.value);
+  });
 
-    const { data, error } = await supabase
-      .from("MAKALAH_DAN_PPT")
-      .select("*")
-      .or(
-        `judul.ilike.%${keyword}%,kelompok.ilike.%${keyword}%,pertemuan::text.ilike.%${keyword}%`
-      )
-      .order("id", { ascending: false });
-
-    if (error) {
-      console.error(error.message);
-      return;
-    }
-
-    renderTable(data);
+  filterPertemuan.addEventListener("change", async (e) => {
+    await loadMakalah(searchInput.value.trim(), e.target.value);
   });
 });
-
-
