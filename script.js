@@ -227,12 +227,22 @@ document.addEventListener("DOMContentLoaded", () => {
 // ==============================
 // MOBILE NAV TOGGLE
 // ==============================
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const menuToggle = document.getElementById("menuToggle");
   const mobileNav = document.getElementById("mobileNav");
+
   if (menuToggle && mobileNav) {
-    menuToggle.addEventListener("click", () =>
-      mobileNav.classList.toggle("active")
-    );
+    menuToggle.addEventListener("click", () => {
+      mobileNav.classList.toggle("active");
+    });
+
+    // Tutup menu mobile jika user klik di luar menu
+    document.addEventListener("click", (e) => {
+      if (!mobileNav.contains(e.target) && !menuToggle.contains(e.target)) {
+        mobileNav.classList.remove("active");
+      }
+    });
   }
 });
+
+
