@@ -1,150 +1,175 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+// ==============================
+// KONEKSI SUPABASE
+// ==============================
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
+// Ganti dengan kredensial milikmu
 const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Ambil user dari localStorage
-const currentUser = JSON.parse(localStorage.getItem("loggedUser"));
-
-// Pastikan tbody di HTML punya id ini
-const tableBody = document.getElementById("makalahTableBody");
-const makalahForm = document.getElementById("makalahForm");
-const searchInput = document.getElementById("searchInput");
-
 // ==============================
-// LOAD TABEL MAKALAH
+// UPLOAD MAKALAH DASAR AKUNTANSI
 // ==============================
-export async function loadMakalahTable() {
-  if (!tableBody) return;
-  tableBody.innerHTML = "<tr><td colspan='6'>⏳ Memuat data...</td></tr>";
+document.addEventListener("DOMContentLoaded", async () => {
+  const form = document.getElementById("makalahForm");
+  const tableBody = document.querySelector("#makalahTable tbody");
+  const searchInput = document.getElementById("searchInput");
 
-  try {
+  // Muat data awal
+  await loadMakalah();
+
+  // ============================
+  // UPLOAD FILE BARU
+  // ============================
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const judul = document.getElementById("judul").value.trim();
+    const kelompok = document.getElementById("kelompok").value.trim();
+    const tanggal = document.getElementById("tanggal").value;
+    const pertemuan = parseInt(document.getElementById("pertemuan").value);
+    const fileInput = document.getElementById("file");
+
+    if (!fileInput.files.length) {
+      alert("Pilih file terlebih dahulu!");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const fileName = `${Date.now()}_${file.name}`;
+
+    try {
+      // Upload file ke bucket (nama HARUS sama persis di Supabase)
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("MAKALAH_DAN_PPT")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Ambil URL publik file
+      const { data: publicUrlData } = supabase.storage
+        .from("MAKALAH_DAN_PPT")
+        .getPublicUrl(fileName);
+
+      const fileUrl = publicUrlData.publicUrl;
+
+      // Simpan metadata ke tabel Supabase
+      const { error: insertError } = await supabase
+        .from("MAKALAH_DAN_PPT")
+        .insert([
+          {
+            judul,
+            kelompok,
+            tanggal,
+            pertemuan,
+            file_name: fileName,
+            file_url: fileUrl,
+            uploaded_by: "user", // bisa ubah sesuai login
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (insertError) throw insertError;
+
+      alert("✅ Makalah berhasil diunggah!");
+      form.reset();
+      await loadMakalah();
+    } catch (err) {
+      console.error("❌ Gagal upload:", err.message);
+      alert("❌ Gagal mengunggah makalah: " + err.message);
+    }
+  });
+
+  // ============================
+  // MUAT DATA DARI SUPABASE
+  // ============================
+  async function loadMakalah() {
+    tableBody.innerHTML = "<tr><td colspan='6'>⏳ Memuat data...</td></tr>";
+
     const { data, error } = await supabase
       .from("MAKALAH_DAN_PPT")
       .select("*")
       .order("id", { ascending: false });
 
-    if (error) throw error;
-    if (!data || data.length === 0) {
-      tableBody.innerHTML = "<tr><td colspan='6'>Belum ada makalah.</td></tr>";
+    if (error) {
+      tableBody.innerHTML = "<tr><td colspan='6'>❌ Gagal memuat data!</td></tr>";
+      console.error("Load error:", error.message);
       return;
     }
 
+    if (!data || data.length === 0) {
+      tableBody.innerHTML = "<tr><td colspan='6'>Belum ada makalah diunggah.</td></tr>";
+      return;
+    }
+
+    renderTable(data);
+  }
+
+  // ============================
+  // RENDER DATA KE TABEL
+  // ============================
+  function renderTable(rows) {
     tableBody.innerHTML = "";
-    data.forEach((item) => {
-      const fileUrl = item.file_url || "#";
-      let actions = `
-        <button onclick="window.open('${fileUrl}', '_blank')">Lihat</button>
-        <a href="${fileUrl}" download>Download</a>
+    rows.forEach((item) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.judul}</td>
+        <td>${item.kelompok}</td>
+        <td>${item.tanggal}</td>
+        <td>${item.pertemuan}</td>
+        <td><a href="${item.file_url}" target="_blank">${item.file_name}</a></td>
+        <td>
+          <button class="delete-btn" data-id="${item.id}" 
+            style="background:#dc2626;color:white;border:none;padding:6px 10px;border-radius:5px;cursor:pointer;">
+            Hapus
+          </button>
+        </td>
       `;
-      if (currentUser?.role === "admin") {
-        actions += `
-          <button onclick="editMakalah(${item.id})">Edit</button>
-          <button onclick="hapusMakalah(${item.id}, '${item.file_name}')">Hapus</button>
-        `;
-      }
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item.judul || "-"}</td>
-        <td>${item.kelompok || "-"}</td>
-        <td>${item.tanggal || "-"}</td>
-        <td>${item.pertemuan || "-"}</td>
-        <td>${item.file_name || "-"}</td>
-        <td>${actions}</td>
-      `;
-      tableBody.appendChild(row);
+      tableBody.appendChild(tr);
     });
-  } catch (err) {
-    console.error("Gagal load:", err);
-    tableBody.innerHTML = `<tr><td colspan='6'>❌ Gagal memuat data: ${err.message}</td></tr>`;
+
+    // Tombol hapus
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        if (confirm("Yakin ingin menghapus makalah ini?")) {
+          const { error } = await supabase
+            .from("MAKALAH_DAN_PPT")
+            .delete()
+            .eq("id", id);
+          if (error) {
+            alert("❌ Gagal menghapus data: " + error.message);
+          } else {
+            alert("✅ Data berhasil dihapus!");
+            await loadMakalah();
+          }
+        }
+      });
+    });
   }
-}
 
-// ==============================
-// HAPUS MAKALAH
-// ==============================
-window.hapusMakalah = async (id, fileName) => {
-  if (currentUser?.role !== "admin") return alert("❌ Hanya admin bisa hapus.");
-  if (!confirm(`Yakin hapus "${fileName}"?`)) return;
-
-  try {
-    await supabase.storage.from("MAKALAH_DAN_PPT").remove([fileName]);
-    await supabase.from("MAKALAH_DAN_PPT").delete().eq("id", id);
-    alert("✅ File berhasil dihapus!");
-    loadMakalahTable();
-  } catch (err) {
-    alert("❌ Gagal hapus: " + err.message);
-  }
-};
-
-// ==============================
-// EDIT JUDUL (ADMIN)
-// ==============================
-window.editMakalah = async (id) => {
-  if (currentUser?.role !== "admin") return alert("❌ Hanya admin bisa edit!");
-  const newJudul = prompt("Masukkan judul baru:");
-  if (!newJudul) return;
-  try {
-    await supabase.from("MAKALAH_DAN_PPT").update({ judul: newJudul }).eq("id", id);
-    alert("✅ Judul berhasil diubah!");
-    loadMakalahTable();
-  } catch (err) {
-    alert("❌ Gagal update: " + err.message);
-  }
-};
-
-// ==============================
-// SEARCH
-// ==============================
-if (searchInput) {
+  // ============================
+  // FITUR CARI
+  // ============================
   searchInput.addEventListener("input", async (e) => {
     const keyword = e.target.value.toLowerCase();
-    try {
-      const { data, error } = await supabase.from("MAKALAH_DAN_PPT")
-        .select("*")
-        .or(`judul.ilike.%${keyword}%,kelompok.ilike.%${keyword}%,pertemuan::text.ilike.%${keyword}%`)
-        .order("id", { ascending: false });
-      if (error) throw error;
 
-      tableBody.innerHTML = "";
-      if (!data || data.length === 0) {
-        tableBody.innerHTML = "<tr><td colspan='6'>Tidak ditemukan.</td></tr>";
-        return;
-      }
+    const { data, error } = await supabase
+      .from("MAKALAH_DAN_PPT")
+      .select("*")
+      .or(
+        `judul.ilike.%${keyword}%,kelompok.ilike.%${keyword}%,pertemuan::text.ilike.%${keyword}%`
+      )
+      .order("id", { ascending: false });
 
-      data.forEach((item) => {
-        const fileUrl = item.file_url || "#";
-        let actions = `
-          <button onclick="window.open('${fileUrl}', '_blank')">Lihat</button>
-          <a href="${fileUrl}" download>Download</a>
-        `;
-        if (currentUser?.role === "admin") {
-          actions += `
-            <button onclick="editMakalah(${item.id})">Edit</button>
-            <button onclick="hapusMakalah(${item.id}, '${item.file_name}')">Hapus</button>
-          `;
-        }
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${item.judul || "-"}</td>
-          <td>${item.kelompok || "-"}</td>
-          <td>${item.tanggal || "-"}</td>
-          <td>${item.pertemuan || "-"}</td>
-          <td>${item.file_name || "-"}</td>
-          <td>${actions}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-    } catch (err) {
-      tableBody.innerHTML = `<tr><td colspan='6'>❌ Gagal cari: ${err.message}</td></tr>`;
+    if (error) {
+      console.error(error.message);
+      return;
     }
-  });
-}
 
-// ==============================
-// LOAD AWAL
-// ==============================
-document.addEventListener("DOMContentLoaded", loadMakalahTable);
+    renderTable(data);
+  });
+});
+
+
