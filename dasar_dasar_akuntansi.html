@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kumpulan Makalah - Dasar Akuntansi | Kelas MPI B</title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
   <link
     rel="stylesheet"
@@ -26,7 +28,7 @@
         <a href="makalah.html">Kumpulan Makalah</a>
         <a href="kontak.html">Kontak</a>
         <a href="login.html" id="login-btn-desktop">Login</a>
-  <a href="#" id="logout-btn-desktop" class="btn-kuning logout-btn" style="display:none;">Logout</a>
+        <a href="#" id="logout-btn-desktop" class="btn-kuning logout-btn" style="display:none;">Logout</a>
       </nav>
     </div>
 
@@ -37,7 +39,7 @@
       <a href="makalah.html">Kumpulan Makalah</a>
       <a href="kontak.html">Kontak</a>
       <a href="login.html" id="login-btn-mobile">Login</a>
-<a href="#" id="logout-btn-mobile" class="btn-kuning logout-btn-mobile" style="display:none;">Logout</a>
+      <a href="#" id="logout-btn-mobile" class="btn-kuning logout-btn-mobile" style="display:none;">Logout</a>
     </nav>
   </header>
 
@@ -91,7 +93,9 @@
             <th>Aksi</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <!-- Data otomatis diisi dari dasar_dasar_akuntansi.js -->
+        </tbody>
       </table>
     </section>
   </main>
@@ -101,14 +105,11 @@
     <p>&copy; 2025 Kelas MPI (B). Semua Hak Dilindungi.</p>
   </footer>
 
-  <!-- Supabase -->
+  <!-- ==============================
+       SUPABASE & SCRIPT JS
+  =============================== -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- panggil JS -->
   <script type="module" src="dasar_dasar_akuntansi.js"></script>
-<script type="module" src="script.js"></script></body>
+  <script type="module" src="script.js"></script>
+</body>
 </html>
-
-
-
-
-
