@@ -133,24 +133,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     tableBody.innerHTML = "";
     rows.forEach((item) => {
       const tr = document.createElement("tr");
+
+      // Jika user mpiuser@gmail.com → sembunyikan edit & hapus
+      const aksiButtons =
+        currentUserEmail === "mpiuser@gmail.com"
+          ? `
+            <button class="view-btn" data-url="${item.file_url}" 
+              style="background:#10b981;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">
+              Lihat
+            </button>
+            <a href="${item.file_url}" download class="download-btn"
+              style="background:#3b82f6;color:white;border:none;padding:6px 8px;border-radius:5px;text-decoration:none;">
+              Download
+            </a>
+          `
+          : `
+            <button class="view-btn" data-url="${item.file_url}" 
+              style="background:#10b981;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">
+              Lihat
+            </button>
+            <a href="${item.file_url}" download class="download-btn"
+              style="background:#3b82f6;color:white;border:none;padding:6px 8px;border-radius:5px;text-decoration:none;">
+              Download
+            </a>
+            <button class="edit-btn" data-id="${item.id}" data-judul="${item.judul}" data-kelompok="${item.kelompok}"
+              data-tanggal="${item.tanggal}" data-pertemuan="${item.pertemuan}"
+              style="background:#f59e0b;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">
+              Edit
+            </button>
+            <button class="delete-btn" data-id="${item.id}"
+              style="background:#dc2626;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">
+              Hapus
+            </button>
+          `;
+
       tr.innerHTML = `
         <td>${item.judul}</td>
         <td>${item.kelompok}</td>
         <td>${item.tanggal}</td>
         <td>${item.pertemuan}</td>
         <td><a href="${item.file_url}" target="_blank">${item.file_name}</a></td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="view-btn" data-url="${item.file_url}" style="background:#10b981;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">Lihat</button>
-          <a href="${item.file_url}" download class="download-btn" style="background:#3b82f6;color:white;border:none;padding:6px 8px;border-radius:5px;text-decoration:none;">Download</a>
-          ${
-            currentUserEmail !== "mpiuser@gmail.com"
-              ? `
-              <button class="edit-btn" data-id="${item.id}" data-judul="${item.judul}" data-kelompok="${item.kelompok}" data-tanggal="${item.tanggal}" data-pertemuan="${item.pertemuan}" style="background:#f59e0b;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">Edit</button>
-              <button class="delete-btn" data-id="${item.id}" style="background:#dc2626;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">Hapus</button>
-              `
-              : ""
-          }
-        </td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">${aksiButtons}</td>
       `;
       tableBody.appendChild(tr);
     });
@@ -162,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
 
-    // Tombol edit (admin saja)
+    // Tombol edit & hapus hanya untuk admin
     if (currentUserEmail !== "mpiuser@gmail.com") {
       document.querySelectorAll(".edit-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -177,7 +200,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       });
 
-      // Tombol hapus (admin saja)
       document.querySelectorAll(".delete-btn").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const id = btn.dataset.id;
