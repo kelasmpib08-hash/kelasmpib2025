@@ -15,6 +15,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("makalahForm");
   const tableBody = document.querySelector("#makalahTable tbody");
   const searchInput = document.getElementById("searchInput");
+  const modal = document.getElementById("editModal");
+  const cancelEdit = document.getElementById("cancelEdit");
+
+  // ============================
+  // AMBIL USER LOGIN SAAT INI
+  // ============================
+  let currentUserEmail = "";
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) throw error;
+    currentUserEmail = data?.user?.email || "";
+  } catch (err) {
+    console.warn("Gagal memuat user:", err.message);
+  }
+
+  console.log("Email login:", currentUserEmail);
+
+  // Jika user == mpiuser@gmail.com → sembunyikan form upload
+  if (currentUserEmail === "mpiuser@gmail.com" && form) {
+    form.style.display = "none";
+  }
 
   // Muat data awal
   await loadMakalah();
@@ -22,64 +43,63 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ============================
   // UPLOAD FILE BARU
   // ============================
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const judul = document.getElementById("judul").value.trim();
-    const kelompok = document.getElementById("kelompok").value.trim();
-    const tanggal = document.getElementById("tanggal").value;
-    const pertemuan = parseInt(document.getElementById("pertemuan").value);
-    const fileInput = document.getElementById("file");
+      const judul = document.getElementById("judul").value.trim();
+      const kelompok = document.getElementById("kelompok").value.trim();
+      const tanggal = document.getElementById("tanggal").value;
+      const pertemuan = parseInt(document.getElementById("pertemuan").value);
+      const fileInput = document.getElementById("file");
 
-    if (!fileInput.files.length) {
-      alert("Pilih file terlebih dahulu!");
-      return;
-    }
+      if (!fileInput.files.length) {
+        alert("Pilih file terlebih dahulu!");
+        return;
+      }
 
-    const file = fileInput.files[0];
-    const fileName = `${Date.now()}_${file.name}`;
+      const file = fileInput.files[0];
+      const fileName = `${Date.now()}_${file.name}`;
 
-    try {
-      // Upload file ke bucket (nama HARUS sama persis di Supabase)
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("MAKALAH_DAN_PPT")
-        .upload(fileName, file);
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from("MAKALAH_DAN_PPT")
+          .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      // Ambil URL publik file
-      const { data: publicUrlData } = supabase.storage
-        .from("MAKALAH_DAN_PPT")
-        .getPublicUrl(fileName);
+        const { data: publicUrlData } = supabase.storage
+          .from("MAKALAH_DAN_PPT")
+          .getPublicUrl(fileName);
 
-      const fileUrl = publicUrlData.publicUrl;
+        const fileUrl = publicUrlData.publicUrl;
 
-      // Simpan metadata ke tabel Supabase
-      const { error: insertError } = await supabase
-        .from("MAKALAH_DAN_PPT")
-        .insert([
-          {
-            judul,
-            kelompok,
-            tanggal,
-            pertemuan,
-            file_name: fileName,
-            file_url: fileUrl,
-            uploaded_by: "user", // bisa ubah sesuai login
-            created_at: new Date().toISOString(),
-          },
-        ]);
+        const { error: insertError } = await supabase
+          .from("MAKALAH_DAN_PPT")
+          .insert([
+            {
+              judul,
+              kelompok,
+              tanggal,
+              pertemuan,
+              file_name: fileName,
+              file_url: fileUrl,
+              uploaded_by: currentUserEmail || "user",
+              created_at: new Date().toISOString(),
+            },
+          ]);
 
-      if (insertError) throw insertError;
+        if (insertError) throw insertError;
 
-      alert("✅ Makalah berhasil diunggah!");
-      form.reset();
-      await loadMakalah();
-    } catch (err) {
-      console.error("❌ Gagal upload:", err.message);
-      alert("❌ Gagal mengunggah makalah: " + err.message);
-    }
-  });
+        alert("✅ Makalah berhasil diunggah!");
+        form.reset();
+        await loadMakalah();
+      } catch (err) {
+        console.error("❌ Gagal upload:", err.message);
+        alert("❌ Gagal mengunggah makalah: " + err.message);
+      }
+    });
+  }
 
   // ============================
   // MUAT DATA DARI SUPABASE
@@ -119,34 +139,63 @@ document.addEventListener("DOMContentLoaded", async () => {
         <td>${item.tanggal}</td>
         <td>${item.pertemuan}</td>
         <td><a href="${item.file_url}" target="_blank">${item.file_name}</a></td>
-        <td>
-          <button class="delete-btn" data-id="${item.id}" 
-            style="background:#dc2626;color:white;border:none;padding:6px 10px;border-radius:5px;cursor:pointer;">
-            Hapus
-          </button>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="view-btn" data-url="${item.file_url}" style="background:#10b981;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">Lihat</button>
+          <a href="${item.file_url}" download class="download-btn" style="background:#3b82f6;color:white;border:none;padding:6px 8px;border-radius:5px;text-decoration:none;">Download</a>
+          ${
+            currentUserEmail !== "mpiuser@gmail.com"
+              ? `
+              <button class="edit-btn" data-id="${item.id}" data-judul="${item.judul}" data-kelompok="${item.kelompok}" data-tanggal="${item.tanggal}" data-pertemuan="${item.pertemuan}" style="background:#f59e0b;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">Edit</button>
+              <button class="delete-btn" data-id="${item.id}" style="background:#dc2626;color:white;border:none;padding:6px 8px;border-radius:5px;cursor:pointer;">Hapus</button>
+              `
+              : ""
+          }
         </td>
       `;
       tableBody.appendChild(tr);
     });
 
-    // Tombol hapus
-    document.querySelectorAll(".delete-btn").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const id = btn.dataset.id;
-        if (confirm("Yakin ingin menghapus makalah ini?")) {
-          const { error } = await supabase
-            .from("MAKALAH_DAN_PPT")
-            .delete()
-            .eq("id", id);
-          if (error) {
-            alert("❌ Gagal menghapus data: " + error.message);
-          } else {
-            alert("✅ Data berhasil dihapus!");
-            await loadMakalah();
-          }
-        }
+    // Tombol lihat file
+    document.querySelectorAll(".view-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        window.open(btn.dataset.url, "_blank");
       });
     });
+
+    // Tombol edit (admin saja)
+    if (currentUserEmail !== "mpiuser@gmail.com") {
+      document.querySelectorAll(".edit-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.getElementById("editId").value = btn.dataset.id;
+          document.getElementById("editJudul").value = btn.dataset.judul;
+          document.getElementById("editKelompok").value = btn.dataset.kelompok;
+          document.getElementById("editTanggal").value = btn.dataset.tanggal;
+          document.getElementById("editPertemuan").value = btn.dataset.pertemuan;
+
+          modal.style.display = "flex";
+          setTimeout(() => modal.classList.add("show"), 10);
+        });
+      });
+
+      // Tombol hapus (admin saja)
+      document.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          if (confirm("Yakin ingin menghapus makalah ini?")) {
+            const { error } = await supabase
+              .from("MAKALAH_DAN_PPT")
+              .delete()
+              .eq("id", id);
+            if (error) {
+              alert("❌ Gagal menghapus data: " + error.message);
+            } else {
+              alert("✅ Data berhasil dihapus!");
+              await loadMakalah();
+            }
+          }
+        });
+      });
+    }
   }
 
   // ============================
@@ -170,6 +219,37 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderTable(data);
   });
+
+  // ============================
+  // MODAL EDIT MAKALAH
+  // ============================
+  cancelEdit.addEventListener("click", () => {
+    modal.classList.remove("show");
+    setTimeout(() => (modal.style.display = "none"), 300);
+  });
+
+  document.getElementById("editForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("editId").value;
+    const judul = document.getElementById("editJudul").value;
+    const kelompok = document.getElementById("editKelompok").value;
+    const tanggal = document.getElementById("editTanggal").value;
+    const pertemuan = document.getElementById("editPertemuan").value;
+
+    const { error } = await supabase
+      .from("MAKALAH_DAN_PPT")
+      .update({ judul, kelompok, tanggal, pertemuan })
+      .eq("id", id);
+
+    if (error) {
+      alert("❌ Gagal menyimpan perubahan: " + error.message);
+      return;
+    }
+
+    alert("✅ Data berhasil diperbarui!");
+    modal.classList.remove("show");
+    setTimeout(() => (modal.style.display = "none"), 300);
+    loadMakalah();
+  });
 });
-
-
