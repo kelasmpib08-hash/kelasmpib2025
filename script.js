@@ -7,14 +7,13 @@ const users = {
 };
 
 // ==============================
-// SUPABASE CONFIG
+// KONFIGURASI SUPABASE
 // ==============================
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
+// Ganti dengan kredensial milikmu
 const SUPABASE_URL = "https://urwbdfnzygigtifnuuwq.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
-
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyd2JkZm56eWdpZ3RpZm51dXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTM1NzYsImV4cCI6MjA3NzQ4OTU3Nn0.AVvB1OPHCuKR_DkkgUpl2VXcjM7Khtv-_TKxzjkyxrU";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ==============================
@@ -156,13 +155,16 @@ async function loadMakalahTable() {
     const fileUrl = `${SUPABASE_URL}/storage/v1/object/public/MAKALAH_DAN_PPT/${file.name}`;
     const row = document.createElement("tr");
 
+    // Tombol dasar (semua user dapat lihat & download)
     let actionButtons = `
       <button class="lihat-btn" onclick="window.open('${fileUrl}', '_blank')">Lihat</button>
       <a href="${fileUrl}" download class="download-btn">Download</a>
     `;
 
+    // Tambah tombol edit & hapus jika admin
     if (role === "admin") {
       actionButtons += `
+        <button class="edit-btn" onclick="editMakalah('${file.name}')">Edit</button>
         <button class="hapus-btn" onclick="hapusMakalah('${file.name}')">Hapus</button>
       `;
     }
@@ -176,6 +178,47 @@ async function loadMakalahTable() {
     tableBody.appendChild(row);
   });
 }
+
+// ==============================
+// EDIT FILE (ADMIN SAJA)
+// ==============================
+window.editMakalah = async function (fileName) {
+  const role = getUserRole();
+  if (role !== "admin") {
+    alert("❌ Anda tidak memiliki izin untuk mengedit!");
+    return;
+  }
+
+  const newFile = prompt("Pilih file baru untuk mengganti:", "");
+  if (!newFile) return;
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".pdf,.ppt,.pptx,.doc,.docx";
+  input.click();
+
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Hapus file lama
+    await supabase.storage.from("MAKALAH_DAN_PPT").remove([fileName]);
+
+    // Upload file baru
+    const { error: uploadError } = await supabase.storage
+      .from("MAKALAH_DAN_PPT")
+      .upload(file.name, file);
+
+    if (uploadError) {
+      alert("❌ Gagal mengganti file!");
+      console.error(uploadError);
+      return;
+    }
+
+    alert("✅ File berhasil diganti!");
+    loadMakalahTable();
+  };
+};
 
 // ==============================
 // HAPUS MAKALAH (ADMIN SAJA)
@@ -236,7 +279,6 @@ document.addEventListener("DOMContentLoaded", () => {
       mobileNav.classList.toggle("active");
     });
 
-    // Tutup menu mobile jika user klik di luar menu
     document.addEventListener("click", (e) => {
       if (!mobileNav.contains(e.target) && !menuToggle.contains(e.target)) {
         mobileNav.classList.remove("active");
@@ -244,5 +286,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-
